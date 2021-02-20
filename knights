@@ -66,3 +66,24 @@ def artificial_intelligence(x, y, arr):
         else:
             order = 'down'
     return order
+
+
+class Font(pygame.sprite.Sprite):
+    def __init__(self, *group):
+        super().__init__(*group)
+        self.image = load_image('fon.png')
+        self.image = pygame.transform.scale(self.image, (1366, 768))
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+
+
+class Interior(pygame.sprite.Sprite):
+    def __init__(self, x, y, image, *group):
+        super().__init__(*group)
+        self.image = load_image(image, 'white')
+        self.image = pygame.transform.scale(self.image, (SSR, SSR))
+        my_board.change((x, y), 2)
+        self.rect = self.image.get_rect()
+        self.rect.x = x * SSR
+        self.rect.y = y * SSR
