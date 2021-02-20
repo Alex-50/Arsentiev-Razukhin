@@ -327,3 +327,45 @@ class Start_wnd:
                 self.screen.blit(font_2, (590, 5 * (v + d) // 2 - 10))
                 self.screen.blit(font_3, (560, 6 * (v + d) // 2 - 10))
                 pygame.display.flip()
+
+
+class End_wnd:
+    def __init__(self, end):
+        running = True
+        pygame.init()
+        self.font = pygame.font.Font(None, 200)
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+            self.size = width, height = 1366, 768
+            self.screen = pygame.display.set_mode(self.size)
+            pygame.mouse.set_visible(True)
+            if end:
+                self.good()
+            else:
+                self.bad()
+            pygame.display.flip()
+
+    def good(self):
+        self.screen.fill((255, 165, 0))
+        font_1 = self.font.render("YOU WIN!", True, pygame.Color("black"))
+        self.screen.blit(font_1, (350, 300))
+
+    def bad(self):
+        self.screen.fill((0, 0, 0))
+        font_1 = self.font.render("YOU LOSE", True, pygame.Color("red"))
+        self.screen.blit(font_1, (350, 300))
+
+if __name__ == '__main__':
+    pygame.init()
+    pygame.display.set_caption('my game')
+    size = width, height = 1366, 768
+    window = pygame.display.set_mode((1366, 768))
+    SSR = height // 5
+    pygame.init()
+    music = pygame.mixer.Sound('data/muse.mp3')
+    music.play(loops=-1)
+
+    screen = pygame.display.set_mode(size)
+    running = True
