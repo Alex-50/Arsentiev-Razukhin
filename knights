@@ -369,3 +369,53 @@ if __name__ == '__main__':
 
     screen = pygame.display.set_mode(size)
     running = True
+        while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.MOUSEMOTION:
+                my_mouse.rect.x = event.pos[0]
+                my_mouse.rect.y = event.pos[1]
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                start = True
+                try:
+                    if event.key == 27:
+                        terminate()
+                    screen.fill('#ffe14d')
+                    interior_sprite.draw(screen)
+                    my_board.render()
+                    knights.update(event)
+                except AttributeError:
+                    if white_knight.health > 0:
+                        for i in dark_knights:
+                            if (i.x, i.y) == my_board.coor(event.pos):
+                                if (abs(i.x - white_knight.x) + abs(i.y - white_knight.y)) == 1:
+                                    i.health -= 1
+                    else:
+                        knights.update(event)
+                for i in dark_knights:
+                    i.update(event)
+                    screen.fill('#ffe14d')
+                    interior_sprite.draw(screen)
+                    my_board.render()
+                    dark_knights.draw(screen)
+                    knights.draw(screen)
+                    pygame.display.flip()
+        screen.fill('#ffe14d')
+        interior_sprite.draw(screen)
+        my_board.render()
+        knights.draw(screen)
+        dark_knights.draw(screen)
+        pygame.mouse.set_visible(False)
+        one_sprite.draw(screen)
+        pygame.display.flip()
+        clock.tick(FPS)
+        if white_knight.x == 8 and white_knight.y == 4:
+            End_wnd(True)
+            time.sleep(0.5)
+            terminate()
+        if white_knight.health == 0:
+            for i in dark_knights:
+                if i.x == i.start_x and i.y == i.start_y:
+                    End_wnd(False)
+    terminate()
