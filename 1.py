@@ -306,7 +306,7 @@ class Start_wnd:
                         [5 * (v + d) // 2 - 18, 5 * (v + d) // 2 - 18 + d],
                         [6 * (v + d) // 2, 6 * (v + d) // 2 + d]]]
         while True:
-            fon = pygame.transform.scale(load_image('fon2.png'), (width, height))
+            fon = pygame.transform.scale(load_image('fon.png'), (width, height))
             self.screen.blit(fon, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
