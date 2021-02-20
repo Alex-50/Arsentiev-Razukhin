@@ -1,0 +1,68 @@
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    if colorkey is not None:
+        image = image.convert()
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        image = image.convert_alpha()
+    return image
+
+
+def load_level(filename, x, y):
+    filename = "data/" + filename
+    text = open(filename, 'r').readlines()
+    if text[y][x] == '2':
+        return Interior(x, y, 'torch.png', interior_sprite)
+    elif text[y][x] == '6':
+        global white_knight
+        white_knight = Knight('kind', x, y, knights)
+    elif text[y][x] == '5':
+        return Knight('evil', x, y, dark_knights)
+
+
+def artificial_intelligence(x, y, arr):
+    order = None
+    if arr[1][0] < 0:
+        if my_board.board[x - 1][y] == 2 or my_board.board[x - 1][y] == 5:
+            if arr[1][1] < 0:
+                order = 'up'
+            else:
+                order = 'down'
+        else:
+            order = 'left'
+    elif arr[1][0] > 0:
+        if my_board.board[x + 1][y] == 2 or my_board.board[x + 1][y] == 5:
+            if arr[1][1] < 0:
+                order = 'up'
+            else:
+                order = 'down'
+        else:
+            order = 'right'
+    elif arr[1][1] < 0 and arr[1][0] == 0:
+        if my_board.board[x][y - 1] == 2 or my_board.board[x][y - 1] == 5:
+            if arr[1][0] < 0:
+                order = 'left'
+            else:
+                order = 'right'
+        else:
+            order = 'up'
+    elif arr[1][1] > 0 and arr[1][0] == 0:
+        if my_board.board[x][y + 1] == 2 or my_board.board[x][y + 1] == 5:
+            if arr[1][0] < 0:
+                order = 'left'
+            else:
+                order = 'right'
+        else:
+            order = 'down'
+    return order
