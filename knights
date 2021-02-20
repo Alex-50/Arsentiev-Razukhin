@@ -87,3 +87,161 @@ class Interior(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * SSR
         self.rect.y = y * SSR
+
+
+class Knight(pygame.sprite.Sprite):
+    def __init__(self, karma, x, y, *group):
+        super().__init__(*group)
+        self.start_x, self.start_y = x, y
+        self.karma = karma
+        if karma == 'kind':
+            self.image = load_image('knight.png', 'white')
+            my_board.change((x, y), 6)
+        elif karma == 'evil':
+            self.image = load_image('dark_knight.png', 'white')
+            my_board.change((x, y), 5)
+        self.image = pygame.transform.scale(self.image, (SSR, SSR))
+        self.rect = self.image.get_rect()
+        self.rect.x = x * SSR
+        self.rect.y = y * SSR
+        self.x, self.y = x, y
+        self.health = 1
+        self.kill = True
+
+    def update(self, *args):
+        if self.karma == 'kind':
+            if self.health > 0:
+                if args and args[0].type == pygame.KEYDOWN:
+                    try:
+                        if args[0].key == pygame.K_DOWN:
+                            self.image_down = load_image('knight.png', 'white')
+                            self.image_down = pygame.transform.scale(self.image_down, (SSR, SSR))
+                            self.image = self.image_down
+                            assert my_board.board[self.x][self.y + 1] == 0
+                            my_board.change((self.x, self.y + 1), 6)
+                            my_board.change((self.x, self.y), 0)
+                            self.y += 1
+                            self.rect = self.rect.move(0, SSR)
+                        elif args[0].key == pygame.K_LEFT:
+                            self.image_left = load_image('knight_left.png', 'white')
+                            self.image_left = pygame.transform.scale(self.image_left, (SSR, SSR))
+                            self.image = self.image_left
+                            assert my_board.board[self.x - 1][self.y] == 0
+                            assert self.x != 0
+                            my_board.change((self.x - 1, self.y), 6)
+                            my_board.change((self.x, self.y), 0)
+                            self.x -= 1
+                            self.rect = self.rect.move(-SSR, 0)
+                        elif args[0].key == pygame.K_UP:
+                            self.image_up = load_image('knight_go_up.png', 'white')
+                            self.image_up = pygame.transform.scale(self.image_up, (SSR, SSR))
+                            self.image = self.image_up
+                            assert self.y != 0
+                            assert my_board.board[self.x][self.y - 1] == 0
+                            my_board.change((self.x, self.y - 1), 6)
+                            my_board.change((self.x, self.y), 0)
+                            self.y -= 1
+                            self.rect = self.rect.move(0, -SSR)
+                        elif args[0].key == pygame.K_RIGHT:
+                            self.image_right = load_image('knight_right.png', 'white')
+                            self.image_right = pygame.transform.scale(self.image_right, (SSR, SSR))
+                            self.image = self.image_right
+                            assert my_board.board[self.x + 1][self.y] == 0
+                            my_board.change((self.x + 1, self.y), 6)
+                            my_board.change((self.x, self.y), 0)
+                            self.x += 1
+                            self.rect = self.rect.move(SSR, 0)
+                        #time.sleep(0.1)
+                    except IndexError:
+                        pass
+                    except AssertionError:
+                        pass
+            else:
+                if self.kill:
+                    my_board.change((self.x, self.y), 0)
+                    self.kill = False
+                    self.image = load_image('dead_knight.png', 'white')
+                    self.image = pygame.transform.scale(self.image, (SSR, SSR))
+        elif self.karma == 'evil':
+            if self.health > 0:
+                self.order, arr = None, []
+                for i in range(9):
+                    for o in range(5):
+                        if my_board.board[i][o] == 6 or my_board.board[i][o] == 1:
+                            arr.append((abs(abs(self.y - o) + abs(self.x - i)),
+                                        (i - self.x, o - self.y), my_board.board[i][o]))
+                try:
+                    arr = sorted(arr, key=lambda o: o[0])[0]
+                except IndexError:
+                    arr = (0, (self.start_x - self.x, self.start_y - self.y), 0)
+                self.order = artificial_intelligence(self.x, self.y, arr)
+                try:
+                    if self.order == 'down':
+                        self.image_down = load_image('dark_knight.png', 'white')
+                        self.image_down = pygame.transform.scale(self.image_down, (SSR, SSR))
+                        self.image = self.image_down
+                        if my_board.board[self.x][self.y + 1] == 6:
+                            for i in knights:
+                                if i.x == self.x and i.y == self.y + 1:
+                                    i.health -= 1
+                        assert my_board.board[self.x][self.y + 1] == 0
+                        my_board.change((self.x, self.y + 1), 5)
+                        my_board.change((self.x, self.y), 0)
+                        self.y += 1
+                        self.rect = self.rect.move(0, SSR)
+                    elif self.order == 'left':
+                        self.image_left = load_image('dark_knight_left.png', 'white')
+                        self.image_left = pygame.transform.scale(self.image_left, (SSR, SSR))
+                        self.image = self.image_left
+                        if my_board.board[self.x - 1][self.y] == 6:
+                            for i in knights:
+                                if i.x == self.x - 1 and i.y == self.y:
+                                    i.health -= 1
+                        assert my_board.board[self.x - 1][self.y] == 0
+                        assert self.x != 0
+                        my_board.change((self.x - 1, self.y), 5)
+                        my_board.change((self.x, self.y), 0)
+                        self.x -= 1
+                        self.rect = self.rect.move(-SSR, 0)
+                    elif self.order == 'up':
+                        self.image_up = load_image('dark_knight_go_up.png', 'white')
+                        self.image_up = pygame.transform.scale(self.image_up, (SSR, SSR))
+                        self.image = self.image_up
+                        if my_board.board[self.x][self.y - 1] == 6:
+                            for i in knights:
+                                if i.x == self.x and i.y == self.y - 1:
+                                    i.health -= 1
+                        assert self.y != 0
+                        assert my_board.board[self.x][self.y - 1] == 0
+                        my_board.change((self.x, self.y - 1), 5)
+                        my_board.change((self.x, self.y), 0)
+                        self.y -= 1
+                        self.rect = self.rect.move(0, -SSR)
+                        time.sleep(0.3)
+                    elif self.order == 'right':
+                        self.image_right = load_image('dark_knight_right.png', 'white')
+                        self.image_right = pygame.transform.scale(self.image_right, (SSR, SSR))
+                        self.image = self.image_right
+                        if my_board.board[self.x + 1][self.y] == 6:
+                            for i in knights:
+                                if i.x == self.x + 1 and i.y == self.y:
+                                    i.health -= 1
+                        assert my_board.board[self.x + 1][self.y] == 0
+                        my_board.change((self.x + 1, self.y), 5)
+                        my_board.change((self.x, self.y), 0)
+                        self.x += 1
+                        self.rect = self.rect.move(SSR, 0)
+                    time.sleep(0.2)
+                except IndexError:
+                    pass
+                except AssertionError:
+                    pass
+            else:
+                if self.kill:
+                    my_board.change((self.x, self.y), 0)
+                    self.kill = False
+                    self.image = load_image('dead_dark_knight.png', 'white')
+                    self.image = pygame.transform.scale(self.image, (SSR, SSR))
+        
+       
+ 
